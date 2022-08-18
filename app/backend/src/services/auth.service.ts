@@ -3,6 +3,7 @@ import Joi = require('joi');
 import ILoginBody from '../interfaces/ILoginBody';
 import IJwtService from '../interfaces/IJwtService';
 import User from '../database/models/user';
+import UnauthorizedError from './errors/unauthorized.error';
 
 export default class AuthService {
   constructor(private jwtService: IJwtService) { }
@@ -20,7 +21,7 @@ export default class AuthService {
     const user = await User.findOne({ where: { email } });
 
     if (!user || !compareSync(pwd, user.password)) {
-      throw new Error();
+      throw new UnauthorizedError('Incorrect email or password');
     }
 
     const { password, ...userWithoutPassword } = user;
