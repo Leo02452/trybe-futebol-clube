@@ -18,7 +18,7 @@ export default class AuthService {
   };
 
   public login = async (email: string, pwd: string): Promise<string> => {
-    const user = await User.findOne({ where: { email } });
+    const user = await User.findOne({ where: { email }, raw: true });
 
     if (!user || !compareSync(pwd, user.password)) {
       throw new UnauthorizedError('Incorrect email or password');
@@ -28,5 +28,11 @@ export default class AuthService {
 
     const token = this.jwtService.signUp(userWithoutPassword);
     return token;
+  };
+
+  public getRole = async (token: string): Promise<object> => {
+    const userData = await this.jwtService.verifyToken(token);
+    const user = await User.findOne({ where: { email: userData.email } });
+    return { role: user?.role };
   };
 }
