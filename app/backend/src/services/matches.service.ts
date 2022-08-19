@@ -12,4 +12,15 @@ export default class MatchesService {
     });
     return matches;
   };
+
+  public filterByProgress = async (inProgress: boolean): Promise<IMatch[]> => {
+    const filteredMatches = await Match.findAll({
+      where: { inProgress },
+      include: [
+        { model: Team, as: 'teamHome', attributes: { exclude: ['id'] } },
+        { model: Team, as: 'teamAway', attributes: { exclude: ['id'] } },
+      ],
+    });
+    return filteredMatches;
+  };
 }
