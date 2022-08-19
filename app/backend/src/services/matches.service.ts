@@ -1,6 +1,8 @@
+import Joi = require('joi');
 import Match from '../database/models/matches';
 import Team from '../database/models/team';
 import IMatch from '../interfaces/IMatch';
+import IMatchQuery from '../interfaces/IMatchQuery';
 
 export default class MatchesService {
   public list = async (): Promise<IMatch[]> => {
@@ -22,5 +24,13 @@ export default class MatchesService {
       ],
     });
     return filteredMatches;
+  };
+
+  public validateQuery = async (unknown: unknown): Promise<IMatchQuery> => {
+    const schema = Joi.object({
+      inProgress: Joi.string().required(),
+    });
+    const result = await schema.validateAsync(unknown);
+    return result;
   };
 }
