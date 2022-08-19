@@ -1,7 +1,8 @@
-import { Model, INTEGER, BOOLEAN } from 'sequelize';
+import { BOOLEAN, INTEGER, Model } from 'sequelize';
 import db from '.';
+import Team from './team';
 
-class Team extends Model {
+class Match extends Model {
   id!: number;
   homeTeam!: number;
   homeTeamGoals!: number;
@@ -10,7 +11,7 @@ class Team extends Model {
   inProgress!: boolean;
 }
 
-Team.init({
+Match.init({
   id: {
     type: INTEGER,
     allowNull: false,
@@ -39,4 +40,7 @@ Team.init({
   underscored: true,
 });
 
-export default Team;
+Match.belongsTo(Team, { foreignKey: 'homeTeam', as: 'teamHome' });
+Match.belongsTo(Team, { foreignKey: 'awayTeam', as: 'teamAway' });
+
+export default Match;
