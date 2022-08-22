@@ -19,4 +19,11 @@ export default class MatchesController {
 
     res.status(200).json(filteredMatches);
   }
+
+  async create(req: Request, res: Response): Promise<void> {
+    await this.authService.validateToken(req.headers.authorization);
+
+    const matchData = await this.matchesService
+      .validateBody(req.body);
+  }
 }

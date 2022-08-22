@@ -2,6 +2,7 @@ import Joi = require('joi');
 import Match from '../database/models/matches';
 import Team from '../database/models/team';
 import IMatch from '../interfaces/IMatch';
+import IMatchBody from '../interfaces/IMatchBody';
 import IMatchQuery from '../interfaces/IMatchQuery';
 
 export default class MatchesService {
@@ -31,6 +32,19 @@ export default class MatchesService {
       inProgress: Joi.string().required(),
     });
     const result = await schema.validateAsync(unknown);
+    return result;
+  };
+
+  public validateBody = async (unknown: unknown): Promise<IMatchBody> => {
+    const schema = Joi.object({
+      homeTeam: Joi.number().required(),
+      awayTeam: Joi.number().required(),
+      homeTeamGoals: Joi.number().required(),
+      awayTeamGoals: Joi.number().required(),
+      inProgress: Joi.boolean(),
+    });
+
+    const result = schema.validateAsync(unknown);
     return result;
   };
 }
