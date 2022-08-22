@@ -4,6 +4,7 @@ import ILoginBody from '../interfaces/ILoginBody';
 import IJwtService from '../interfaces/IJwtService';
 import User from '../database/models/user';
 import UnauthorizedError from './errors/unauthorized.error';
+import NotFoundError from './errors/notfound.error';
 
 export default class AuthService {
   constructor(private jwtService: IJwtService) { }
@@ -34,5 +35,12 @@ export default class AuthService {
     const userData = await this.jwtService.verifyToken(token);
     const user = await User.findOne({ where: { email: userData.email } });
     return { role: user?.role };
+  };
+
+  public validateToken = async (token: string | undefined): Promise<void> => {
+    if (!token) {
+      throw new NotFoundError('Token not found!');
+    }
+    await this.jwtService.verifyToken(token);
   };
 }

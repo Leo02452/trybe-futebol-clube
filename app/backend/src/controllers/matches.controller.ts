@@ -1,9 +1,11 @@
 import { Request, Response } from 'express';
+import IAuthService from '../interfaces/IAuthService';
 import IMatchesService from '../interfaces/IMatchesService';
 
 export default class MatchesController {
   constructor(
     private matchesService: IMatchesService,
+    private authService: IAuthService,
   ) { }
 
   async list(_req: Request, res: Response): Promise<void> {
