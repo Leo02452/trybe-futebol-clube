@@ -6,5 +6,6 @@ export default interface IMatchesService {
   list(): Promise<IMatch[]>;
   filterByProgress(inProgress: boolean): Promise<IMatch[]>;
   validateQuery(unknown: unknown): Promise<IMatchQuery>;
+  create(matchData: IMatchBody): Promise<object>;
   validateBody(unknown: unknown): Promise<IMatchBody>;
 }

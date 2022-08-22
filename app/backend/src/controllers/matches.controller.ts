@@ -27,5 +27,10 @@ export default class MatchesController {
 
     const matchData = await this.matchesService
       .validateBody(req.body);
+
+    const createdMatch = await this.matchesService
+      .create(matchData);
+
+    res.status(201).json(createdMatch);
   }
 }

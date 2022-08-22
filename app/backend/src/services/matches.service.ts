@@ -35,6 +35,19 @@ export default class MatchesService {
     return result;
   };
 
+  public create = async (matchData: IMatchBody): Promise<object> => {
+    const createdMatch = await Match.create(matchData);
+    const createdMatchJSON = createdMatch.toJSON() as IMatchBody;
+    return {
+      id: createdMatch.id,
+      homeTeam: createdMatchJSON.homeTeam,
+      homeTeamGoals: createdMatchJSON.homeTeamGoals,
+      awayTeam: createdMatchJSON.awayTeam,
+      awayTeamGoals: createdMatch.awayTeamGoals,
+      inProgress: true,
+    };
+  };
+
   public validateBody = async (unknown: unknown): Promise<IMatchBody> => {
     const schema = Joi.object({
       homeTeam: Joi.number().required(),
