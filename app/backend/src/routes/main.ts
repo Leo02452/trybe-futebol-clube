@@ -14,7 +14,7 @@ const teamsService = new TeamsService();
 const teamsController = new TeamsController(teamsService);
 
 const matchesService = new MatchesService();
-const matchesController = new MatchesController(matchesService);
+const matchesController = new MatchesController(matchesService, authService);
 
 export default authController;
 export { teamsController, matchesController };
