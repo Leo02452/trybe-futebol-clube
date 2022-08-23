@@ -9,4 +9,5 @@ export default interface IMatchesService {
   create(matchData: IMatchBody): Promise<object>;
   validateBody(unknown: unknown): Promise<IMatchBody>;
   finishMatch(id: string): Promise<void>;
+  validateSameTeam(homeTeam: number, awayTeam: number): Promise<void>;
 }

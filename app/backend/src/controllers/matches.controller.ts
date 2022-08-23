@@ -28,6 +28,8 @@ export default class MatchesController {
     const matchData = await this.matchesService
       .validateBody(req.body);
 
+    await this.matchesService.validateSameTeam(matchData.homeTeam, matchData.awayTeam);
+
     const createdMatch = await this.matchesService
       .create(matchData);
 

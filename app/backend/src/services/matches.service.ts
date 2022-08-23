@@ -4,6 +4,7 @@ import Team from '../database/models/team';
 import IMatch from '../interfaces/IMatch';
 import IMatchBody from '../interfaces/IMatchBody';
 import IMatchQuery from '../interfaces/IMatchQuery';
+import UnauthorizedError from './errors/unauthorized.error';
 
 export default class MatchesService {
   public list = async (): Promise<IMatch[]> => {
@@ -59,6 +60,12 @@ export default class MatchesService {
 
     const result = schema.validateAsync(unknown);
     return result;
+  };
+
+  public validateSameTeam = async (homeTeam: number, awayTeam: number): Promise<void> => {
+    if (homeTeam === awayTeam) {
+      throw new UnauthorizedError('It is not possible to create a match with two equal teams');
+    }
   };
 
   public finishMatch = async (id: string): Promise<void> => {
