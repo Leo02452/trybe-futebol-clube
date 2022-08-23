@@ -1,0 +1,104 @@
+import sequelize = require('sequelize');
+import Team from '../database/models/team';
+import Match from '../database/models/matches';
+import ITeamMatches from '../interfaces/ITeamMatches';
+import ITeamInfo from '../interfaces/ITeamInfo';
+
+export default class LeaderboardService {
+  public getHome = async () => {
+    const matches = await Match.findAll({
+      where: { inProgress: false },
+      attributes: [
+        [sequelize.fn('json_arrayagg', sequelize.col('home_team_goals')), 'goalsFavorPerMatch'],
+        [sequelize.fn('json_arrayagg', sequelize.col('away_team_goals')), 'goalsOwnPerMatch'],
+      ],
+      include: { model: Team, as: 'teamHome', attributes: ['teamName', 'id'] },
+      group: ['home_team'],
+    });
+
+    const matchesJSON = matches.map((match) => match.toJSON()) as unknown as ITeamMatches[];
+
+    const teamsInfo = matchesJSON
+      .map(this.generateTeamInfo)
+      .sort(this.orderByTieBreakers);
+
+    return teamsInfo;
+  };
+
+  private generateTeamInfo = (team: ITeamMatches) => {
+    const totalGames = team.goalsFavorPerMatch.length;
+    const totalVictories = this.getTotalVictories(team.goalsFavorPerMatch, team.goalsOwnPerMatch);
+    const totalDraws = this.getTotalDraws(team.goalsFavorPerMatch, team.goalsOwnPerMatch);
+    const totalPoints = this.getTotalPoints(totalVictories, totalDraws);
+    const goalsFavor = this.getTotalGoals(team.goalsFavorPerMatch);
+    const goalsOwn = this.getTotalGoals(team.goalsOwnPerMatch);
+
+    return {
+      name: team.teamHome.teamName,
+      totalPoints,
+      totalGames,
+      totalVictories,
+      totalDraws,
+      totalLosses: this.getTotalLosses(team.goalsFavorPerMatch, team.goalsOwnPerMatch),
+      goalsFavor,
+      goalsOwn,
+      goalsBalance: (goalsFavor - goalsOwn),
+      efficiency: this.getEffience(totalPoints, totalGames),
+    };
+  };
+
+  private getTotalPoints = (victories: number, draws: number): number => {
+    const totalPoint = (victories * 3) + draws;
+    return totalPoint;
+  };
+
+  private getTotalGoals = (goals: number[]): number => {
+    const totalGoals = goals.reduce((acc, curr) => acc + curr);
+    return totalGoals;
+  };
+
+  private getTotalVictories = (goalsFavor: number[], goalsOwn: number[]): number => {
+    const totalVictories = goalsFavor
+      .reduce((acc, curr, index) => (curr > goalsOwn[index] ? acc + 1 : acc), 0);
+
+    return totalVictories;
+  };
+
+  private getTotalDraws = (goalsFavor: number[], goalsOwn: number[]): number => {
+    const totalDraws = goalsFavor
+      .reduce((acc, curr, index) => (curr === goalsOwn[index] ? acc + 1 : acc), 0);
+
+    return totalDraws;
+  };
+
+  private getTotalLosses = (goalsFavor: number[], goalsOwn: number[]): number => {
+    const totalLosses = goalsFavor
+      .reduce((acc, curr, index) => (curr < goalsOwn[index] ? acc + 1 : acc), 0);
+
+    return totalLosses;
+  };
+
+  private getEffience = (points: number, games: number): number => {
+    const efficiency = Number(((points / (games * 3)) * 100).toFixed(2));
+    return efficiency;
+  };
+
+  private orderByTieBreakers = (a: ITeamInfo, b: ITeamInfo) => {
+    if (b.totalPoints !== a.totalPoints) {
+      return b.totalPoints - a.totalPoints;
+    }
+    if (b.totalPoints === a.totalPoints) {
+      if (b.totalVictories === a.totalVictories) {
+        if (b.goalsBalance === a.goalsBalance) {
+          if (b.goalsFavor !== a.goalsFavor) {
+            return b.goalsFavor - a.goalsFavor;
+          }
+          return 0;
+        }
+        return b.goalsBalance - a.goalsBalance;
+      }
+      return b.totalVictories - a.totalVictories;
+    }
+    return 0;
+  };
+}
