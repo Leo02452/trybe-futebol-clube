@@ -4,6 +4,7 @@ import Team from '../database/models/team';
 import IMatch from '../interfaces/IMatch';
 import IMatchBody from '../interfaces/IMatchBody';
 import IMatchQuery from '../interfaces/IMatchQuery';
+import NotFoundError from './errors/notfound.error';
 import UnauthorizedError from './errors/unauthorized.error';
 
 export default class MatchesService {
@@ -65,6 +66,13 @@ export default class MatchesService {
   public validateSameTeam = async (homeTeam: number, awayTeam: number): Promise<void> => {
     if (homeTeam === awayTeam) {
       throw new UnauthorizedError('It is not possible to create a match with two equal teams');
+    }
+  };
+
+  public checkIfExists = async (id: number): Promise<void> => {
+    const team = await Team.findByPk(id);
+    if (!team) {
+      throw new NotFoundError('There is no team with such id!');
     }
   };
 

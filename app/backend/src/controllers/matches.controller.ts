@@ -30,6 +30,9 @@ export default class MatchesController {
 
     await this.matchesService.validateSameTeam(matchData.homeTeam, matchData.awayTeam);
 
+    await this.matchesService.checkIfExists(matchData.homeTeam);
+    await this.matchesService.checkIfExists(matchData.awayTeam);
+
     const createdMatch = await this.matchesService
       .create(matchData);
 
