@@ -9,5 +9,7 @@ router.get('/', (req: Request, res: Response) => matchesController.list(req, res
 router.post('/', (req: Request, res: Response) => matchesController.create(req, res));
 router.patch('/:id/finish', (req: Request, res: Response) => matchesController
   .finishMatch(req, res));
+router.patch('/:id', (req: Request, res: Response) => matchesController
+  .update(req, res));
 
 export default router;

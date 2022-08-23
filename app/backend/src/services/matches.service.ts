@@ -4,6 +4,7 @@ import Team from '../database/models/team';
 import IMatch from '../interfaces/IMatch';
 import IMatchBody from '../interfaces/IMatchBody';
 import IMatchQuery from '../interfaces/IMatchQuery';
+import IMatchUpdateBody from '../interfaces/IMatchUpdateBody';
 import NotFoundError from './errors/notfound.error';
 import UnauthorizedError from './errors/unauthorized.error';
 
@@ -78,5 +79,19 @@ export default class MatchesService {
 
   public finishMatch = async (id: string): Promise<void> => {
     await Match.update({ inProgress: false }, { where: { id } });
+  };
+
+  public validateUpdateBody = async (unknown: unknown): Promise<IMatchUpdateBody> => {
+    const schema = Joi.object({
+      homeTeamGoals: Joi.number().required(),
+      awayTeamGoals: Joi.number().required(),
+    });
+
+    const result = schema.validateAsync(unknown);
+    return result;
+  };
+
+  public update = async (matchData: IMatchUpdateBody, id: string): Promise<void> => {
+    await Match.update({ ...matchData }, { where: { id } });
   };
 }
