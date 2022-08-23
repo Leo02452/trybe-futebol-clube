@@ -45,6 +45,21 @@ export default class LeaderboardService {
     return teamsInfo;
   };
 
+  public getAll = async () => {
+    const homeTeams = await this.getHome();
+    const awayTeams = await this.getAway();
+
+    const totalTeamInfo = homeTeams.map((homeTeam) => {
+      const team = awayTeams.find((awayTeam) => homeTeam.name === awayTeam.name);
+      if (!team) return homeTeam;
+      return this.sumStats(homeTeam, team);
+    });
+
+    const leaderboard = totalTeamInfo.sort(this.orderByTieBreakers);
+
+    return leaderboard;
+  };
+
   private generateTeamInfo = (team: ITeamMatches) => {
     const totalGames = team.goalsFavorPerMatch.length;
     const totalVictories = this.getTotalVictories(team.goalsFavorPerMatch, team.goalsOwnPerMatch);
@@ -63,7 +78,7 @@ export default class LeaderboardService {
       goalsFavor,
       goalsOwn,
       goalsBalance: (goalsFavor - goalsOwn),
-      efficiency: this.getEffience(totalPoints, totalGames),
+      efficiency: this.getEffiency(totalPoints, totalGames),
     };
   };
 
@@ -98,7 +113,7 @@ export default class LeaderboardService {
     return totalLosses;
   };
 
-  private getEffience = (points: number, games: number): number => {
+  private getEffiency = (points: number, games: number): number => {
     const efficiency = Number(((points / (games * 3)) * 100).toFixed(2));
     return efficiency;
   };
@@ -121,4 +136,20 @@ export default class LeaderboardService {
     }
     return 0;
   };
+
+  private sumStats = (home: ITeamInfo, away: ITeamInfo) => ({
+    name: home.name,
+    totalPoints: home.totalPoints + away.totalPoints,
+    totalGames: home.totalGames + away.totalGames,
+    totalVictories: home.totalVictories + away.totalVictories,
+    totalDraws: home.totalDraws + away.totalDraws,
+    totalLosses: home.totalLosses + away.totalLosses,
+    goalsFavor: home.goalsFavor + away.goalsFavor,
+    goalsOwn: home.goalsOwn + away.goalsOwn,
+    goalsBalance: home.goalsBalance + away.goalsBalance,
+    efficiency: this.getEffiency(
+      (home.totalPoints + away.totalPoints),
+      (home.totalGames + away.totalGames),
+    ),
+  });
 }

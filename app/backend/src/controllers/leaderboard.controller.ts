@@ -15,4 +15,9 @@ export default class LeaderboardController {
     const result = await this.lbService.getAway();
     res.status(200).json(result);
   }
+
+  async getAll(_req: Request, res: Response): Promise<void> {
+    const result = await this.lbService.getAll();
+    res.status(200).json(result);
+  }
 }
