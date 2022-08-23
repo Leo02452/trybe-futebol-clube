@@ -60,4 +60,8 @@ export default class MatchesService {
     const result = schema.validateAsync(unknown);
     return result;
   };
+
+  public finishMatch = async (id: string): Promise<void> => {
+    await Match.update({ inProgress: false }, { where: { id } });
+  };
 }
