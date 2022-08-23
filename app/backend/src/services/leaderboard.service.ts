@@ -25,6 +25,26 @@ export default class LeaderboardService {
     return teamsInfo;
   };
 
+  public getAway = async () => {
+    const matches = await Match.findAll({
+      where: { inProgress: false },
+      attributes: [
+        [sequelize.fn('json_arrayagg', sequelize.col('away_team_goals')), 'goalsFavorPerMatch'],
+        [sequelize.fn('json_arrayagg', sequelize.col('home_team_goals')), 'goalsOwnPerMatch'],
+      ],
+      include: { model: Team, as: 'teamAway', attributes: ['teamName', 'id'] },
+      group: ['away_team'],
+    });
+
+    const matchesJSON = matches.map((match) => match.toJSON()) as unknown as ITeamMatches[];
+
+    const teamsInfo = matchesJSON
+      .map(this.generateTeamInfo)
+      .sort(this.orderByTieBreakers);
+
+    return teamsInfo;
+  };
+
   private generateTeamInfo = (team: ITeamMatches) => {
     const totalGames = team.goalsFavorPerMatch.length;
     const totalVictories = this.getTotalVictories(team.goalsFavorPerMatch, team.goalsOwnPerMatch);
@@ -34,7 +54,7 @@ export default class LeaderboardService {
     const goalsOwn = this.getTotalGoals(team.goalsOwnPerMatch);
 
     return {
-      name: team.teamHome.teamName,
+      name: team.teamHome?.teamName || team.teamAway?.teamName,
       totalPoints,
       totalGames,
       totalVictories,

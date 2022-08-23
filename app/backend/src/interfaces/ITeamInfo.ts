@@ -1,5 +1,5 @@
 export default interface ITeamInfo {
-  name: string;
+  name: string | undefined;
   totalPoints: number;
   totalGames: number;
   totalVictories: number;
