@@ -8,7 +8,11 @@ const { JWT_SECRET } = process.env;
 const secret = JWT_SECRET || 'jwt_secret';
 
 export default class JwtService {
-  public signUp = async (payload: IUserWithoutPassword): Promise<string> => sign(payload, secret);
+  generateToken = async (payload: IUserWithoutPassword): Promise<string> => {
+    const token = sign(payload, secret);
+    return token;
+  };
+
   public verifyToken = async (token: string): Promise<IUserWithoutPassword> => {
     let userData = {} as IUserWithoutPassword;
     verify(token, secret, (error, decode) => {

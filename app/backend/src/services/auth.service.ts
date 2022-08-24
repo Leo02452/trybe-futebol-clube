@@ -33,7 +33,7 @@ export default class AuthService {
   login = async (user: IUser): Promise<string> => {
     const { password, ...userWithoutPassword } = user;
 
-    const token = this.jwtService.signUp(userWithoutPassword);
+    const token = this.jwtService.generateToken(userWithoutPassword);
     return token;
   };
 
