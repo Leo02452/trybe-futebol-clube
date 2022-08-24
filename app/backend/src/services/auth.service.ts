@@ -14,8 +14,9 @@ export default class AuthService {
       email: Joi.string().required().email(),
       password: Joi.string().required().min(6),
     }).messages({ 'string.empty': 'All fields must be filled' });
-    const result = await schema.validateAsync(unknown);
-    return result;
+
+    const payload = await schema.validateAsync(unknown);
+    return payload;
   };
 
   public login = async (email: string, pwd: string): Promise<string> => {
