@@ -9,9 +9,11 @@ export default class AuthController {
   ) { }
 
   async login(req: Request, res: Response): Promise<void> {
-    const body: ILoginBody = await this.authService.validateBody(req.body);
+    const payload: ILoginBody = await this.authService.validateBody(req.body);
 
-    const token = await this.authService.login(body.email, body.password);
+    const user = await this.authService.validateUserData(payload);
+
+    const token = await this.authService.login(user);
 
     res.status(200).json({ token });
   }

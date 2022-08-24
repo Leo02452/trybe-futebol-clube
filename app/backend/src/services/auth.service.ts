@@ -5,6 +5,7 @@ import IJwtService from '../interfaces/IJwtService';
 import User from '../database/models/user';
 import UnauthorizedError from './errors/unauthorized.error';
 import NotFoundError from './errors/notfound.error';
+import IUser from '../interfaces/IUser';
 
 export default class AuthService {
   constructor(private jwtService: IJwtService) { }
@@ -19,13 +20,17 @@ export default class AuthService {
     return payload;
   };
 
-  public login = async (email: string, pwd: string): Promise<string> => {
-    const user = await User.findOne({ where: { email }, raw: true });
+  validateUserData = async (payload: ILoginBody): Promise<IUser> => {
+    const user = await User.findOne({ where: { email: payload.email }, raw: true });
 
-    if (!user || !compareSync(pwd, user.password)) {
+    if (!user || !compareSync(payload.password, user.password)) {
       throw new UnauthorizedError('Incorrect email or password');
     }
 
+    return user;
+  };
+
+  login = async (user: IUser): Promise<string> => {
     const { password, ...userWithoutPassword } = user;
 
     const token = this.jwtService.signUp(userWithoutPassword);
