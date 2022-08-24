@@ -21,9 +21,8 @@ export default class AuthService {
   };
 
   validateHeader = async (unknown: unknown): Promise<string> => {
-    const schema = Joi.object({
-      authorization: Joi.string().required(),
-    });
+    const schema = Joi.string().required()
+      .messages({ 'string.empty': 'Token not found!' });
 
     const token = await schema.validateAsync(unknown);
     return token;

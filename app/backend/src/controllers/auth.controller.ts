@@ -18,7 +18,7 @@ export default class AuthController {
   }
 
   async validate(req: Request, res: Response) {
-    const token = await this.authService.validateHeader(req.headers);
+    const token = await this.authService.validateHeader(req.headers.authorization);
 
     const jwtPayload = await this.authService.newValidateToken(token);
 
