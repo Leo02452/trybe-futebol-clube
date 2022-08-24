@@ -11,8 +11,8 @@ export default class AuthService {
 
   public validateBody = async (unknown: unknown): Promise<ILoginBody> => {
     const schema = Joi.object({
-      email: Joi.string().required(),
-      password: Joi.string().required(),
+      email: Joi.string().required().email(),
+      password: Joi.string().required().min(6),
     }).messages({ 'string.empty': 'All fields must be filled' });
     const result = await schema.validateAsync(unknown);
     return result;
