@@ -1,10 +1,12 @@
 import ILoginBody from './ILoginBody';
-import IUser from './IUser';
+import IUser, { IUserWithoutPassword } from './IUser';
 
 export default interface IAuthService {
   validateBody(unknown: unknown): Promise<ILoginBody>;
+  validateHeader(unknown: unknown): Promise<string>;
   validateUserData(payload: ILoginBody): Promise<IUser>;
   login(data: ILoginBody): Promise<string>;
-  getRole(token: string): Promise<object>;
+  getUserRole(jwtPayload: IUserWithoutPassword): Promise<object>;
+  newValidateToken(token: string): Promise<IUserWithoutPassword>;
   validateToken(token: string | undefined): Promise<void>;
 }
