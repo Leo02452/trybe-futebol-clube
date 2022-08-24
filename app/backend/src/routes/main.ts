@@ -22,4 +22,4 @@ const lbService = new LeaderboardService();
 const lbController = new LeaderboardController(lbService);
 
 export default authController;
-export { teamsController, matchesController, lbController };
+export { jwtService, teamsController, matchesController, lbController };
