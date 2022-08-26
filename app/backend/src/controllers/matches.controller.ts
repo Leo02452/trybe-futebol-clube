@@ -8,18 +8,19 @@ export default class MatchesController {
     private authService: IAuthService,
   ) { }
 
-  async list(_req: Request, res: Response): Promise<void> {
-    const matches = await this.matchesService.list();
+  async list(req: Request, res: Response): Promise<void> {
+    let matches;
+
+    const { inProgress } = req.query;
+
+    if (inProgress === undefined) {
+      matches = await this.matchesService.list();
+    } else {
+      const inProgressValue = await this.matchesService.validateQuery(inProgress);
+      matches = await this.matchesService.filterByProgress(inProgressValue);
+    }
 
     res.status(200).json(matches);
-  }
-
-  async filterByProgress(req: Request, res: Response): Promise<void> {
-    const { inProgress } = await this.matchesService.validateQuery(req.query);
-    const filteredMatches = await this.matchesService
-      .filterByProgress(JSON.parse(inProgress));
-
-    res.status(200).json(filteredMatches);
   }
 
   async create(req: Request, res: Response): Promise<void> {
@@ -39,7 +40,7 @@ export default class MatchesController {
     res.status(201).json(createdMatch);
   }
 
-  async finishMatch(req: Request, res: Response): Promise<void> {
+  async finish(req: Request, res: Response): Promise<void> {
     const { id } = req.params;
 
     await this.matchesService.finishMatch(id);

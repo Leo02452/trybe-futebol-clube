@@ -3,7 +3,6 @@ import Match from '../database/models/matches';
 import Team from '../database/models/team';
 import IMatch from '../interfaces/IMatch';
 import IMatchBody from '../interfaces/IMatchBody';
-import IMatchQuery from '../interfaces/IMatchQuery';
 import IMatchUpdateBody from '../interfaces/IMatchUpdateBody';
 import NotFoundError from './errors/notfound.error';
 import UnauthorizedError from './errors/unauthorized.error';
@@ -16,6 +15,7 @@ export default class MatchesService {
         { model: Team, as: 'teamAway', attributes: { exclude: ['id'] } },
       ],
     });
+
     return matches;
   };
 
@@ -30,12 +30,11 @@ export default class MatchesService {
     return filteredMatches;
   };
 
-  public validateQuery = async (unknown: unknown): Promise<IMatchQuery> => {
-    const schema = Joi.object({
-      inProgress: Joi.string().required(),
-    });
-    const result = await schema.validateAsync(unknown);
-    return result;
+  public validateQuery = async (unknown: unknown): Promise<boolean> => {
+    const schema = Joi.boolean().required();
+
+    const inProgressValue = await schema.validateAsync(unknown);
+    return inProgressValue;
   };
 
   public create = async (matchData: IMatchBody): Promise<object> => {

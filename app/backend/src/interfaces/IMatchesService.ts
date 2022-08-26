@@ -1,12 +1,11 @@
 import IMatch from './IMatch';
 import IMatchBody from './IMatchBody';
-import IMatchQuery from './IMatchQuery';
 import IMatchUpdateBody from './IMatchUpdateBody';
 
 export default interface IMatchesService {
   list(): Promise<IMatch[]>;
   filterByProgress(inProgress: boolean): Promise<IMatch[]>;
-  validateQuery(unknown: unknown): Promise<IMatchQuery>;
+  validateQuery(unknown: unknown): Promise<boolean>;
   create(matchData: IMatchBody): Promise<object>;
   validateBody(unknown: unknown): Promise<IMatchBody>;
   validateSameTeam(homeTeam: number, awayTeam: number): Promise<void>;
