@@ -37,8 +37,7 @@ export default class MatchesController {
     await this.teamsService.getById(matchData.homeTeam);
     await this.teamsService.getById(matchData.awayTeam);
 
-    const createdMatch = await this.matchesService
-      .create(matchData);
+    const createdMatch = await this.matchesService.create(matchData);
 
     res.status(201).json(createdMatch);
   }

@@ -59,16 +59,8 @@ export default class MatchesService {
   };
 
   create = async (matchData: ICreateMatchBody): Promise<object> => {
-    const createdMatch = await Match.create(matchData);
-    const createdMatchJSON = createdMatch.toJSON() as ICreateMatchBody;
-    return {
-      id: createdMatch.id,
-      homeTeam: createdMatchJSON.homeTeam,
-      homeTeamGoals: createdMatchJSON.homeTeamGoals,
-      awayTeam: createdMatchJSON.awayTeam,
-      awayTeamGoals: createdMatch.awayTeamGoals,
-      inProgress: true,
-    };
+    const createdMatch = await Match.create({ ...matchData, inProgress: true });
+    return createdMatch;
   };
 
   update = async (matchData: IUpdateMatchBody, id: string): Promise<void> => {
