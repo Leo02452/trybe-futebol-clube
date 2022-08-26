@@ -1,5 +1,5 @@
 import { Request, Response } from 'express';
-import ILoginBody from '../interfaces/ILoginBody';
+import IUserLogin from '../interfaces/IUserLogin';
 import IAuthService from '../interfaces/IAuthService';
 
 export default class AuthController {
@@ -8,7 +8,7 @@ export default class AuthController {
   ) { }
 
   async login(req: Request, res: Response): Promise<void> {
-    const payload: ILoginBody = await this.authService.validateBody(req.body);
+    const payload: IUserLogin = await this.authService.validateBody(req.body);
 
     const user = await this.authService.validateUserData(payload);
 

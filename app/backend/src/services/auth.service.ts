@@ -1,6 +1,6 @@
 import { compareSync } from 'bcryptjs';
 import Joi = require('joi');
-import ILoginBody from '../interfaces/ILoginBody';
+import IUserLogin from '../interfaces/IUserLogin';
 import IJwtService from '../interfaces/IJwtService';
 import User from '../database/models/user';
 import UnauthorizedError from './errors/unauthorized.error';
@@ -10,7 +10,7 @@ import IUser, { IUserWithoutPassword } from '../interfaces/IUser';
 export default class AuthService {
   constructor(private jwtService: IJwtService) { }
 
-  validateBody = async (unknown: unknown): Promise<ILoginBody> => {
+  validateBody = async (unknown: unknown): Promise<IUserLogin> => {
     const schema = Joi.object({
       email: Joi.string().required().email(),
       password: Joi.string().required().min(6),
@@ -28,7 +28,7 @@ export default class AuthService {
     return token;
   };
 
-  validateUserData = async (payload: ILoginBody): Promise<IUser> => {
+  validateUserData = async (payload: IUserLogin): Promise<IUser> => {
     const user = await User.findOne({ where: { email: payload.email }, raw: true });
 
     if (!user || !compareSync(payload.password, user.password)) {
