@@ -3,14 +3,12 @@ import IMatch from './IMatch';
 import IMatchUpdateBody from './IUpdateMatchBody';
 
 export default interface IMatchesService {
+  validateQuery(unknown: unknown): Promise<boolean>;
+  validateCreateBody(unknown: unknown): Promise<IMatchBody>;
+  validateUpdateBody(unknown: unknown): Promise<IMatchUpdateBody>;
   list(): Promise<IMatch[]>;
   filterByProgress(inProgress: boolean): Promise<IMatch[]>;
-  validateQuery(unknown: unknown): Promise<boolean>;
   create(matchData: IMatchBody): Promise<object>;
-  validateBody(unknown: unknown): Promise<IMatchBody>;
-  validateSameTeam(homeTeam: number, awayTeam: number): Promise<void>;
-  checkIfExists(id: number): Promise<void>;
-  finishMatch(id: string): Promise<void>;
-  validateUpdateBody(unknown: unknown): Promise<IMatchUpdateBody>;
   update(matchData: IMatchUpdateBody, id: string): Promise<void>;
+  finishMatch(id: string): Promise<void>;
 }

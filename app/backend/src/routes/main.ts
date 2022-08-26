@@ -16,7 +16,7 @@ const teamsService = new TeamsService();
 const teamsController = new TeamsController(teamsService);
 
 const matchesService = new MatchesService();
-const matchesController = new MatchesController(matchesService, authService);
+const matchesController = new MatchesController(matchesService, authService, teamsService);
 
 const lbService = new LeaderboardService();
 const lbController = new LeaderboardController(lbService);

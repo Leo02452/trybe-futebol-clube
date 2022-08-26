@@ -4,53 +4,16 @@ import Team from '../database/models/team';
 import ICreateMatchBody from '../interfaces/ICreateMatchBody';
 import IMatch from '../interfaces/IMatch';
 import IUpdateMatchBody from '../interfaces/IUpdateMatchBody';
-import NotFoundError from './errors/notfound.error';
-import UnauthorizedError from './errors/unauthorized.error';
 
 export default class MatchesService {
-  public list = async (): Promise<IMatch[]> => {
-    const matches = await Match.findAll({
-      include: [
-        { model: Team, as: 'teamHome', attributes: { exclude: ['id'] } },
-        { model: Team, as: 'teamAway', attributes: { exclude: ['id'] } },
-      ],
-    });
-
-    return matches;
-  };
-
-  public filterByProgress = async (inProgress: boolean): Promise<IMatch[]> => {
-    const filteredMatches = await Match.findAll({
-      where: { inProgress },
-      include: [
-        { model: Team, as: 'teamHome', attributes: { exclude: ['id'] } },
-        { model: Team, as: 'teamAway', attributes: { exclude: ['id'] } },
-      ],
-    });
-    return filteredMatches;
-  };
-
-  public validateQuery = async (unknown: unknown): Promise<boolean> => {
+  validateQuery = async (unknown: unknown): Promise<boolean> => {
     const schema = Joi.boolean().required();
 
     const inProgressValue = await schema.validateAsync(unknown);
     return inProgressValue;
   };
 
-  public create = async (matchData: ICreateMatchBody): Promise<object> => {
-    const createdMatch = await Match.create(matchData);
-    const createdMatchJSON = createdMatch.toJSON() as ICreateMatchBody;
-    return {
-      id: createdMatch.id,
-      homeTeam: createdMatchJSON.homeTeam,
-      homeTeamGoals: createdMatchJSON.homeTeamGoals,
-      awayTeam: createdMatchJSON.awayTeam,
-      awayTeamGoals: createdMatch.awayTeamGoals,
-      inProgress: true,
-    };
-  };
-
-  public validateBody = async (unknown: unknown): Promise<ICreateMatchBody> => {
+  validateCreateBody = async (unknown: unknown): Promise<ICreateMatchBody> => {
     const schema = Joi.object({
       homeTeam: Joi.number().required(),
       awayTeam: Joi.number().required(),
@@ -63,24 +26,7 @@ export default class MatchesService {
     return result;
   };
 
-  public validateSameTeam = async (homeTeam: number, awayTeam: number): Promise<void> => {
-    if (homeTeam === awayTeam) {
-      throw new UnauthorizedError('It is not possible to create a match with two equal teams');
-    }
-  };
-
-  public checkIfExists = async (id: number): Promise<void> => {
-    const team = await Team.findByPk(id);
-    if (!team) {
-      throw new NotFoundError('There is no team with such id!');
-    }
-  };
-
-  public finishMatch = async (id: string): Promise<void> => {
-    await Match.update({ inProgress: false }, { where: { id } });
-  };
-
-  public validateUpdateBody = async (unknown: unknown): Promise<IUpdateMatchBody> => {
+  validateUpdateBody = async (unknown: unknown): Promise<IUpdateMatchBody> => {
     const schema = Joi.object({
       homeTeamGoals: Joi.number().required(),
       awayTeamGoals: Joi.number().required(),
@@ -90,7 +36,46 @@ export default class MatchesService {
     return result;
   };
 
-  public update = async (matchData: IUpdateMatchBody, id: string): Promise<void> => {
+  list = async (): Promise<IMatch[]> => {
+    const matches = await Match.findAll({
+      include: [
+        { model: Team, as: 'teamHome', attributes: { exclude: ['id'] } },
+        { model: Team, as: 'teamAway', attributes: { exclude: ['id'] } },
+      ],
+    });
+
+    return matches;
+  };
+
+  filterByProgress = async (inProgress: boolean): Promise<IMatch[]> => {
+    const filteredMatches = await Match.findAll({
+      where: { inProgress },
+      include: [
+        { model: Team, as: 'teamHome', attributes: { exclude: ['id'] } },
+        { model: Team, as: 'teamAway', attributes: { exclude: ['id'] } },
+      ],
+    });
+    return filteredMatches;
+  };
+
+  create = async (matchData: ICreateMatchBody): Promise<object> => {
+    const createdMatch = await Match.create(matchData);
+    const createdMatchJSON = createdMatch.toJSON() as ICreateMatchBody;
+    return {
+      id: createdMatch.id,
+      homeTeam: createdMatchJSON.homeTeam,
+      homeTeamGoals: createdMatchJSON.homeTeamGoals,
+      awayTeam: createdMatchJSON.awayTeam,
+      awayTeamGoals: createdMatch.awayTeamGoals,
+      inProgress: true,
+    };
+  };
+
+  update = async (matchData: IUpdateMatchBody, id: string): Promise<void> => {
     await Match.update({ ...matchData }, { where: { id } });
+  };
+
+  finishMatch = async (id: string): Promise<void> => {
+    await Match.update({ inProgress: false }, { where: { id } });
   };
 }
