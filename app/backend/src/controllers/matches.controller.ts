@@ -24,7 +24,9 @@ export default class MatchesController {
   }
 
   async create(req: Request, res: Response): Promise<void> {
-    await this.authService.validateToken(req.headers.authorization);
+    const token = await this.authService.validateHeader(req.headers.authorization);
+
+    await this.authService.validateToken(token);
 
     const matchData = await this.matchesService
       .validateBody(req.body);

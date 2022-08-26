@@ -20,7 +20,7 @@ export default class AuthController {
   async validate(req: Request, res: Response) {
     const token = await this.authService.validateHeader(req.headers.authorization);
 
-    const jwtPayload = await this.authService.newValidateToken(token);
+    const jwtPayload = await this.authService.validateToken(token);
 
     const userRole = await this.authService.getUserRole(jwtPayload);
 

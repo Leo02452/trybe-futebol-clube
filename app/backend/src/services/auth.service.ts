@@ -38,7 +38,7 @@ export default class AuthService {
     return user;
   };
 
-  newValidateToken = async (token: string): Promise<IUserWithoutPassword> => {
+  validateToken = async (token: string): Promise<IUserWithoutPassword> => {
     const userData = await this.jwtService.verifyToken(token);
     return userData;
   };
@@ -56,12 +56,5 @@ export default class AuthService {
       throw new NotFoundError('User not found');
     }
     return { role: user.role };
-  };
-
-  validateToken = async (token: string | undefined): Promise<void> => {
-    if (!token) {
-      throw new NotFoundError('Token not found!');
-    }
-    await this.jwtService.verifyToken(token);
   };
 }

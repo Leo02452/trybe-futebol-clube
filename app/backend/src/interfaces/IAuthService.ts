@@ -7,6 +7,5 @@ export default interface IAuthService {
   validateUserData(payload: ILoginBody): Promise<IUser>;
   login(data: ILoginBody): Promise<string>;
   getUserRole(jwtPayload: IUserWithoutPassword): Promise<object>;
-  newValidateToken(token: string): Promise<IUserWithoutPassword>;
-  validateToken(token: string | undefined): Promise<void>;
+  validateToken(token: string): Promise<IUserWithoutPassword>;
 }
