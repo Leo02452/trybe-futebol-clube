@@ -1,9 +1,9 @@
 import Joi = require('joi');
 import Match from '../database/models/matches';
 import Team from '../database/models/team';
+import ICreateMatchBody from '../interfaces/ICreateMatchBody';
 import IMatch from '../interfaces/IMatch';
-import IMatchBody from '../interfaces/IMatchBody';
-import IMatchUpdateBody from '../interfaces/IMatchUpdateBody';
+import IUpdateMatchBody from '../interfaces/IUpdateMatchBody';
 import NotFoundError from './errors/notfound.error';
 import UnauthorizedError from './errors/unauthorized.error';
 
@@ -37,9 +37,9 @@ export default class MatchesService {
     return inProgressValue;
   };
 
-  public create = async (matchData: IMatchBody): Promise<object> => {
+  public create = async (matchData: ICreateMatchBody): Promise<object> => {
     const createdMatch = await Match.create(matchData);
-    const createdMatchJSON = createdMatch.toJSON() as IMatchBody;
+    const createdMatchJSON = createdMatch.toJSON() as ICreateMatchBody;
     return {
       id: createdMatch.id,
       homeTeam: createdMatchJSON.homeTeam,
@@ -50,13 +50,13 @@ export default class MatchesService {
     };
   };
 
-  public validateBody = async (unknown: unknown): Promise<IMatchBody> => {
+  public validateBody = async (unknown: unknown): Promise<ICreateMatchBody> => {
     const schema = Joi.object({
       homeTeam: Joi.number().required(),
       awayTeam: Joi.number().required(),
       homeTeamGoals: Joi.number().required(),
       awayTeamGoals: Joi.number().required(),
-      inProgress: Joi.boolean(),
+      inProgress: Joi.boolean().optional(),
     });
 
     const result = schema.validateAsync(unknown);
@@ -80,7 +80,7 @@ export default class MatchesService {
     await Match.update({ inProgress: false }, { where: { id } });
   };
 
-  public validateUpdateBody = async (unknown: unknown): Promise<IMatchUpdateBody> => {
+  public validateUpdateBody = async (unknown: unknown): Promise<IUpdateMatchBody> => {
     const schema = Joi.object({
       homeTeamGoals: Joi.number().required(),
       awayTeamGoals: Joi.number().required(),
@@ -90,7 +90,7 @@ export default class MatchesService {
     return result;
   };
 
-  public update = async (matchData: IMatchUpdateBody, id: string): Promise<void> => {
+  public update = async (matchData: IUpdateMatchBody, id: string): Promise<void> => {
     await Match.update({ ...matchData }, { where: { id } });
   };
 }

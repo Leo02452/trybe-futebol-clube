@@ -1,6 +1,6 @@
+import IMatchBody from './ICreateMatchBody';
 import IMatch from './IMatch';
-import IMatchBody from './IMatchBody';
-import IMatchUpdateBody from './IMatchUpdateBody';
+import IMatchUpdateBody from './IUpdateMatchBody';
 
 export default interface IMatchesService {
   list(): Promise<IMatch[]>;
