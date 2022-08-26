@@ -13,9 +13,9 @@ export default class TeamsController {
   }
 
   async getById(req: Request, res: Response): Promise<void> {
-    const { id } = req.params;
+    const id = await this.teamsService.validateParamsId(req.params);
 
-    const team = await this.teamsService.getById(Number(id));
+    const team = await this.teamsService.getById(id);
 
     res.status(200).json(team);
   }
