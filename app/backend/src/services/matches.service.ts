@@ -1,9 +1,8 @@
 import Joi = require('joi');
 import Match from '../database/models/matches';
 import Team from '../database/models/team';
-import ICreateMatchBody from '../interfaces/ICreateMatchBody';
 import IMatch from '../interfaces/IMatch';
-import IUpdateMatchBody from '../interfaces/IUpdateMatchBody';
+import IMatchScore from '../interfaces/IMatchScore';
 
 export default class MatchesService {
   validateQuery = async (unknown: unknown): Promise<boolean> => {
@@ -13,7 +12,7 @@ export default class MatchesService {
     return inProgressValue;
   };
 
-  validateCreateBody = async (unknown: unknown): Promise<ICreateMatchBody> => {
+  validateCreateBody = async (unknown: unknown): Promise<IMatch> => {
     const schema = Joi.object({
       homeTeam: Joi.number().required(),
       awayTeam: Joi.number().required(),
@@ -26,7 +25,7 @@ export default class MatchesService {
     return result;
   };
 
-  validateUpdateBody = async (unknown: unknown): Promise<IUpdateMatchBody> => {
+  validateUpdateBody = async (unknown: unknown): Promise<IMatchScore> => {
     const schema = Joi.object({
       homeTeamGoals: Joi.number().required(),
       awayTeamGoals: Joi.number().required(),
@@ -58,12 +57,12 @@ export default class MatchesService {
     return filteredMatches;
   };
 
-  create = async (matchData: ICreateMatchBody): Promise<object> => {
+  create = async (matchData: IMatch): Promise<IMatch> => {
     const createdMatch = await Match.create({ ...matchData, inProgress: true });
     return createdMatch;
   };
 
-  update = async (matchData: IUpdateMatchBody, id: string): Promise<void> => {
+  update = async (matchData: IMatchScore, id: string): Promise<void> => {
     await Match.update({ ...matchData }, { where: { id } });
   };
 

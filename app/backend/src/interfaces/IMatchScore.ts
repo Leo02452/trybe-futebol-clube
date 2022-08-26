@@ -1,4 +1,4 @@
-export default interface IUpdateMatchBody {
+export default interface IMatchScore {
   homeTeamGoals: number;
   awayTeamGoals: number;
 }
