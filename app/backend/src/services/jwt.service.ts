@@ -13,7 +13,7 @@ export default class JwtService {
     return token;
   };
 
-  public verifyToken = async (token: string): Promise<IUserWithoutPassword> => {
+  verifyToken = async (token: string): Promise<IUserWithoutPassword> => {
     let userData = {} as IUserWithoutPassword;
     verify(token, secret, (error, decode) => {
       if (error) {

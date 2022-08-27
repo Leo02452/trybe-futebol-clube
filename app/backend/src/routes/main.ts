@@ -21,5 +21,4 @@ const matchesController = new MatchesController(matchesService, authService, tea
 const lbService = new LeaderboardService();
 const lbController = new LeaderboardController(lbService);
 
-export default authController;
-export { jwtService, teamsController, matchesController, lbController };
+export { authController, jwtService, teamsController, matchesController, lbController };
