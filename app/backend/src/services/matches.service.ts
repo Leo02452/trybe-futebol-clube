@@ -71,8 +71,8 @@ export default class MatchesService {
     return createdMatch;
   };
 
-  update = async (matchData: IMatchScore, id: string): Promise<void> => {
-    await Match.update({ ...matchData }, { where: { id } });
+  update = async (matchScore: IMatchScore, id: string): Promise<void> => {
+    await Match.update({ ...matchScore }, { where: { id } });
   };
 
   finish = async (id: string): Promise<void> => {
