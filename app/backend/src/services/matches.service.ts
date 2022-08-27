@@ -66,7 +66,7 @@ export default class MatchesService {
     await Match.update({ ...matchData }, { where: { id } });
   };
 
-  finishMatch = async (id: string): Promise<void> => {
+  finish = async (id: string): Promise<void> => {
     await Match.update({ inProgress: false }, { where: { id } });
   };
 }
