@@ -1,10 +1,7 @@
-export default interface ITeamMatches {
-  goalsFavorPerMatch: number[];
-  goalsOwnPerMatch: number[];
-  teamHome?: {
-    teamName: string;
-  }
-  teamAway?: {
-    teamName: string;
-  }
+import IMatchScore from './IMatchScore';
+import ITeam from './ITeam';
+
+export default interface ITeamMatches extends ITeam {
+  homeMatches: IMatchScore[];
+  awayMatches: IMatchScore[];
 }
