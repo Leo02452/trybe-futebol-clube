@@ -5,6 +5,6 @@ const router = Router();
 
 router.get('/home', (req: Request, res: Response) => lbController.getFilteredLeaderboard(req, res));
 router.get('/away', (req: Request, res: Response) => lbController.getFilteredLeaderboard(req, res));
-// router.get('/', (req: Request, res: Response) => lbController.getAll(req, res));
+router.get('/', (req: Request, res: Response) => lbController.getFullLeaderboard(req, res));
 
 export default router;

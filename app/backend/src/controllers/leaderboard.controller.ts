@@ -11,8 +11,8 @@ export default class LeaderboardController {
     res.status(200).json(filteredLeaderboard);
   }
 
-  // async getFullLeaderboard(_req: Request, res: Response): Promise<void> {
-  //   const result = await this.lbService.getAway();
-  //   res.status(200).json(result);
-  // }
+  async getFullLeaderboard(_req: Request, res: Response): Promise<void> {
+    const result = await this.lbService.getFullLeaderboard();
+    res.status(200).json(result);
+  }
 }

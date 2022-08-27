@@ -17,7 +17,7 @@ enum GoalType {
 }
 
 export default class LeaderboardService {
-  getFilteredLeaderboard = async (path: Path) => {
+  getFilteredLeaderboard = async (path: Path): Promise<ITeamStats[]> => {
     const teamsMatches = await Team.findAll({
       attributes: { exclude: ['id'] },
       include: {
@@ -36,6 +36,24 @@ export default class LeaderboardService {
       .sort(this._orderByTieBreakers);
 
     return result;
+  };
+
+  getFullLeaderboard = async (): Promise<ITeamStats[]> => {
+    const homeTeamsMatches = await this.getFilteredLeaderboard('/home');
+    const awayTeamsMatches = await this.getFilteredLeaderboard('/away');
+
+    const teamsFullStats = homeTeamsMatches.map((homeTeamMatches) => {
+      const team = awayTeamsMatches
+        .find((awayTeamMatches) => homeTeamMatches.name === awayTeamMatches.name);
+
+      if (!team) return homeTeamMatches;
+
+      return this._sumStats(homeTeamMatches, team);
+    });
+
+    const fullLeaderboard = teamsFullStats.sort(this._orderByTieBreakers);
+
+    return fullLeaderboard;
   };
 
   private _generateTeamStats = (teamsMatches: ITeamMatches, path: Path) => {
@@ -108,7 +126,7 @@ export default class LeaderboardService {
   || b.goalsBalance - a.goalsBalance
   || b.goalsFavor - a.goalsFavor;
 
-  private sumStats = (home: ITeamStats, away: ITeamStats) => ({
+  private _sumStats = (home: ITeamStats, away: ITeamStats) => ({
     name: home.name,
     totalPoints: home.totalPoints + away.totalPoints,
     totalGames: home.totalGames + away.totalGames,
