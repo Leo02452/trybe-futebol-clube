@@ -1,4 +1,3 @@
-// import IMatchResults from '../interfaces/IMatchResults';
 import Team from '../database/models/team';
 import Match from '../database/models/matches';
 import { ITeamGoals, ITeamResults, ITeamStats } from '../interfaces/ITeamStats';
@@ -10,6 +9,11 @@ type Path = '/home' | '/away';
 enum MatchType {
   '/home' = 'homeMatches',
   '/away' = 'awayMatches',
+}
+
+enum GoalType {
+  '/home' = 'homeTeamGoals',
+  '/away' = 'awayTeamGoals',
 }
 
 export default class LeaderboardService {
@@ -28,17 +32,18 @@ export default class LeaderboardService {
       .map((teamMatches) => teamMatches.toJSON()) as unknown as ITeamMatches[];
 
     const result = teamsMatchesJSON
-      .map(this._generateTeamStats)
+      .map((teamMatches) => this._generateTeamStats(teamMatches, path))
       .sort(this._orderByTieBreakers);
 
     return result;
   };
 
-  private _generateTeamStats = (teamsMatches: ITeamMatches) => {
-    const totalGames = teamsMatches.homeMatches.length;
+  private _generateTeamStats = (teamsMatches: ITeamMatches, path: Path) => {
+    const totalGames = teamsMatches[MatchType[path]].length;
     const { totalVictories, totalDraws, totalLosses } = this
-      ._getTotalResults(teamsMatches.homeMatches);
-    const { goalsBalance, goalsFavor, goalsOwn } = this._getTotalGoals(teamsMatches.homeMatches);
+      ._getTotalResults(teamsMatches[MatchType[path]], path);
+    const { goalsBalance, goalsFavor, goalsOwn } = this
+      ._getTotalGoals(teamsMatches[MatchType[path]], path);
     const totalPoints = this._getTotalPoints(totalVictories, totalDraws);
 
     return {
@@ -60,15 +65,17 @@ export default class LeaderboardService {
     return totalPoints;
   };
 
-  private _getTotalResults = (matches: IMatchScore[]): ITeamResults => {
+  private _getTotalResults = (matches: IMatchScore[], path: Path): ITeamResults => {
     const matchResults = matches.reduce((acc, curr) => {
+      const opp = path === '/home' ? 'awayTeamGoals' : 'homeTeamGoals';
+
       switch (true) {
-        case curr.homeTeamGoals > curr.awayTeamGoals:
+        case curr[GoalType[path]] > curr[opp]:
           return { ...acc, totalVictories: acc.totalVictories + 1 };
-        case curr.homeTeamGoals < curr.awayTeamGoals:
-          return { ...acc, totalDraws: acc.totalLosses + 1 };
-        case curr.homeTeamGoals === curr.awayTeamGoals:
-          return { ...acc, totalLosses: acc.totalDraws + 1 };
+        case curr[GoalType[path]] < curr[opp]:
+          return { ...acc, totalLosses: acc.totalLosses + 1 };
+        case curr[GoalType[path]] === curr[opp]:
+          return { ...acc, totalDraws: acc.totalDraws + 1 };
         default:
           break;
       }
@@ -77,13 +84,17 @@ export default class LeaderboardService {
     return matchResults;
   };
 
-  private _getTotalGoals = (matches: IMatchScore[]): ITeamGoals => {
+  private _getTotalGoals = (matches: IMatchScore[], path: Path): ITeamGoals => {
     const teamGoals = matches.reduce((acc, curr) => {
-      const goalsFavor = acc.goalsFavor + curr.homeTeamGoals;
-      const goalsOwn = acc.goalsOwn + curr.awayTeamGoals;
+      const opp = path === '/home' ? 'awayTeamGoals' : 'homeTeamGoals';
+
+      const goalsFavor = acc.goalsFavor + curr[GoalType[path]];
+      const goalsOwn = acc.goalsOwn + curr[opp];
       const goalsBalance = goalsFavor - goalsOwn;
+
       return { goalsFavor, goalsOwn, goalsBalance };
     }, { goalsFavor: 0, goalsOwn: 0, goalsBalance: 0 });
+
     return teamGoals;
   };
 
