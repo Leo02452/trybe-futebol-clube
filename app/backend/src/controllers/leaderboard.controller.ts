@@ -6,18 +6,13 @@ export default class LeaderboardController {
     private lbService: ILbService,
   ) { }
 
-  async getHome(_req: Request, res: Response): Promise<void> {
-    const result = await this.lbService.getHome();
-    res.status(200).json(result);
+  async getFilteredLeaderboard(req: Request, res: Response): Promise<void> {
+    const filteredLeaderboard = await this.lbService.getFilteredLeaderboard(req.path);
+    res.status(200).json(filteredLeaderboard);
   }
 
-  async getAway(_req: Request, res: Response): Promise<void> {
-    const result = await this.lbService.getAway();
-    res.status(200).json(result);
-  }
-
-  async getAll(_req: Request, res: Response): Promise<void> {
-    const result = await this.lbService.getAll();
-    res.status(200).json(result);
-  }
+  // async getFullLeaderboard(_req: Request, res: Response): Promise<void> {
+  //   const result = await this.lbService.getAway();
+  //   res.status(200).json(result);
+  // }
 }

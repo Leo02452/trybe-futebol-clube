@@ -1,143 +1,103 @@
-import sequelize = require('sequelize');
+// import IMatchResults from '../interfaces/IMatchResults';
 import Team from '../database/models/team';
 import Match from '../database/models/matches';
+import { ITeamGoals, ITeamResults, ITeamStats } from '../interfaces/ITeamStats';
+import IMatchScore from '../interfaces/IMatchScore';
 import ITeamMatches from '../interfaces/ITeamMatches';
-import ITeamInfo from '../interfaces/ITeamInfo';
+
+type Path = '/home' | '/away';
+
+enum MatchType {
+  '/home' = 'homeMatches',
+  '/away' = 'awayMatches',
+}
 
 export default class LeaderboardService {
-  public getHome = async () => {
-    const matches = await Match.findAll({
-      where: { inProgress: false },
-      attributes: [
-        [sequelize.fn('json_arrayagg', sequelize.col('home_team_goals')), 'goalsFavorPerMatch'],
-        [sequelize.fn('json_arrayagg', sequelize.col('away_team_goals')), 'goalsOwnPerMatch'],
-      ],
-      include: { model: Team, as: 'teamHome', attributes: ['teamName', 'id'] },
-      group: ['home_team'],
+  getFilteredLeaderboard = async (path: Path) => {
+    const teamsMatches = await Team.findAll({
+      attributes: { exclude: ['id'] },
+      include: {
+        model: Match,
+        as: MatchType[path],
+        where: { inProgress: false },
+        attributes: { exclude: ['id', 'homeTeam', 'awayTeam', 'inProgress'] },
+      },
     });
 
-    const matchesJSON = matches.map((match) => match.toJSON()) as unknown as ITeamMatches[];
+    const teamsMatchesJSON = teamsMatches
+      .map((teamMatches) => teamMatches.toJSON()) as unknown as ITeamMatches[];
 
-    const teamsInfo = matchesJSON
-      .map(this.generateTeamInfo)
-      .sort(this.orderByTieBreakers);
+    const result = teamsMatchesJSON
+      .map(this._generateTeamStats)
+      .sort(this._orderByTieBreakers);
 
-    return teamsInfo;
+    return result;
   };
 
-  public getAway = async () => {
-    const matches = await Match.findAll({
-      where: { inProgress: false },
-      attributes: [
-        [sequelize.fn('json_arrayagg', sequelize.col('away_team_goals')), 'goalsFavorPerMatch'],
-        [sequelize.fn('json_arrayagg', sequelize.col('home_team_goals')), 'goalsOwnPerMatch'],
-      ],
-      include: { model: Team, as: 'teamAway', attributes: ['teamName', 'id'] },
-      group: ['away_team'],
-    });
-
-    const matchesJSON = matches.map((match) => match.toJSON()) as unknown as ITeamMatches[];
-
-    const teamsInfo = matchesJSON
-      .map(this.generateTeamInfo)
-      .sort(this.orderByTieBreakers);
-
-    return teamsInfo;
-  };
-
-  public getAll = async () => {
-    const homeTeams = await this.getHome();
-    const awayTeams = await this.getAway();
-
-    const totalTeamInfo = homeTeams.map((homeTeam) => {
-      const team = awayTeams.find((awayTeam) => homeTeam.name === awayTeam.name);
-      if (!team) return homeTeam;
-      return this.sumStats(homeTeam, team);
-    });
-
-    const leaderboard = totalTeamInfo.sort(this.orderByTieBreakers);
-
-    return leaderboard;
-  };
-
-  private generateTeamInfo = (team: ITeamMatches) => {
-    const totalGames = team.goalsFavorPerMatch.length;
-    const totalVictories = this.getTotalVictories(team.goalsFavorPerMatch, team.goalsOwnPerMatch);
-    const totalDraws = this.getTotalDraws(team.goalsFavorPerMatch, team.goalsOwnPerMatch);
-    const totalPoints = this.getTotalPoints(totalVictories, totalDraws);
-    const goalsFavor = this.getTotalGoals(team.goalsFavorPerMatch);
-    const goalsOwn = this.getTotalGoals(team.goalsOwnPerMatch);
+  private _generateTeamStats = (teamsMatches: ITeamMatches) => {
+    const totalGames = teamsMatches.homeMatches.length;
+    const { totalVictories, totalDraws, totalLosses } = this
+      ._getTotalResults(teamsMatches.homeMatches);
+    const { goalsBalance, goalsFavor, goalsOwn } = this._getTotalGoals(teamsMatches.homeMatches);
+    const totalPoints = this._getTotalPoints(totalVictories, totalDraws);
 
     return {
-      name: team.teamHome?.teamName || team.teamAway?.teamName,
+      name: teamsMatches.teamName,
       totalPoints,
       totalGames,
       totalVictories,
       totalDraws,
-      totalLosses: this.getTotalLosses(team.goalsFavorPerMatch, team.goalsOwnPerMatch),
+      totalLosses,
       goalsFavor,
       goalsOwn,
-      goalsBalance: (goalsFavor - goalsOwn),
-      efficiency: this.getEffiency(totalPoints, totalGames),
+      goalsBalance,
+      efficiency: this._getEffiency(totalPoints, totalGames),
     };
   };
 
-  private getTotalPoints = (victories: number, draws: number): number => {
-    const totalPoint = (victories * 3) + draws;
-    return totalPoint;
+  private _getTotalPoints = (victories: number, draws: number): number => {
+    const totalPoints = (victories * 3) + draws;
+    return totalPoints;
   };
 
-  private getTotalGoals = (goals: number[]): number => {
-    const totalGoals = goals.reduce((acc, curr) => acc + curr);
-    return totalGoals;
+  private _getTotalResults = (matches: IMatchScore[]): ITeamResults => {
+    const matchResults = matches.reduce((acc, curr) => {
+      switch (true) {
+        case curr.homeTeamGoals > curr.awayTeamGoals:
+          return { ...acc, totalVictories: acc.totalVictories + 1 };
+        case curr.homeTeamGoals < curr.awayTeamGoals:
+          return { ...acc, totalDraws: acc.totalLosses + 1 };
+        case curr.homeTeamGoals === curr.awayTeamGoals:
+          return { ...acc, totalLosses: acc.totalDraws + 1 };
+        default:
+          break;
+      }
+      return acc;
+    }, { totalVictories: 0, totalDraws: 0, totalLosses: 0 });
+    return matchResults;
   };
 
-  private getTotalVictories = (goalsFavor: number[], goalsOwn: number[]): number => {
-    const totalVictories = goalsFavor
-      .reduce((acc, curr, index) => (curr > goalsOwn[index] ? acc + 1 : acc), 0);
-
-    return totalVictories;
+  private _getTotalGoals = (matches: IMatchScore[]): ITeamGoals => {
+    const teamGoals = matches.reduce((acc, curr) => {
+      const goalsFavor = acc.goalsFavor + curr.homeTeamGoals;
+      const goalsOwn = acc.goalsOwn + curr.awayTeamGoals;
+      const goalsBalance = goalsFavor - goalsOwn;
+      return { goalsFavor, goalsOwn, goalsBalance };
+    }, { goalsFavor: 0, goalsOwn: 0, goalsBalance: 0 });
+    return teamGoals;
   };
 
-  private getTotalDraws = (goalsFavor: number[], goalsOwn: number[]): number => {
-    const totalDraws = goalsFavor
-      .reduce((acc, curr, index) => (curr === goalsOwn[index] ? acc + 1 : acc), 0);
-
-    return totalDraws;
-  };
-
-  private getTotalLosses = (goalsFavor: number[], goalsOwn: number[]): number => {
-    const totalLosses = goalsFavor
-      .reduce((acc, curr, index) => (curr < goalsOwn[index] ? acc + 1 : acc), 0);
-
-    return totalLosses;
-  };
-
-  private getEffiency = (points: number, games: number): number => {
+  private _getEffiency = (points: number, games: number): number => {
     const efficiency = Number(((points / (games * 3)) * 100).toFixed(2));
     return efficiency;
   };
 
-  private orderByTieBreakers = (a: ITeamInfo, b: ITeamInfo) => {
-    if (b.totalPoints !== a.totalPoints) {
-      return b.totalPoints - a.totalPoints;
-    }
-    if (b.totalPoints === a.totalPoints) {
-      if (b.totalVictories === a.totalVictories) {
-        if (b.goalsBalance === a.goalsBalance) {
-          if (b.goalsFavor !== a.goalsFavor) {
-            return b.goalsFavor - a.goalsFavor;
-          }
-          return 0;
-        }
-        return b.goalsBalance - a.goalsBalance;
-      }
-      return b.totalVictories - a.totalVictories;
-    }
-    return 0;
-  };
+  private _orderByTieBreakers = (a: ITeamStats, b: ITeamStats) => b.totalPoints - a.totalPoints
+  || b.totalVictories - a.totalVictories
+  || b.goalsBalance - a.goalsBalance
+  || b.goalsFavor - a.goalsFavor;
 
-  private sumStats = (home: ITeamInfo, away: ITeamInfo) => ({
+  private sumStats = (home: ITeamStats, away: ITeamStats) => ({
     name: home.name,
     totalPoints: home.totalPoints + away.totalPoints,
     totalGames: home.totalGames + away.totalGames,
@@ -147,7 +107,7 @@ export default class LeaderboardService {
     goalsFavor: home.goalsFavor + away.goalsFavor,
     goalsOwn: home.goalsOwn + away.goalsOwn,
     goalsBalance: home.goalsBalance + away.goalsBalance,
-    efficiency: this.getEffiency(
+    efficiency: this._getEffiency(
       (home.totalPoints + away.totalPoints),
       (home.totalGames + away.totalGames),
     ),
