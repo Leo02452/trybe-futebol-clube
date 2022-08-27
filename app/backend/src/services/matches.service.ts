@@ -3,6 +3,7 @@ import Match from '../database/models/matches';
 import Team from '../database/models/team';
 import IMatch from '../interfaces/IMatch';
 import IMatchScore from '../interfaces/IMatchScore';
+import NotFoundError from './errors/notfound.error';
 
 export default class MatchesService {
   validateQuery = async (unknown: unknown): Promise<boolean> => {
@@ -33,6 +34,14 @@ export default class MatchesService {
 
     const result = schema.validateAsync(unknown);
     return result;
+  };
+
+  checkIfExists = async (id: string): Promise<void> => {
+    const match = await Match.findByPk(id);
+
+    if (!match) {
+      throw new NotFoundError('Match not found!');
+    }
   };
 
   list = async (): Promise<IMatch[]> => {
