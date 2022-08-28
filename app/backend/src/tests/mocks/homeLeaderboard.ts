@@ -84,18 +84,6 @@ export const homeLeaderboard = [
     "efficiency": 44.44
   },
   {
-    "name": "Minas Brasília",
-    "totalPoints": 4,
-    "totalGames": 4,
-    "totalVictories": 1,
-    "totalDraws": 1,
-    "totalLosses": 2,
-    "goalsFavor": 4,
-    "goalsOwn": 6,
-    "goalsBalance": -2,
-    "efficiency": 33.33
-  },
-  {
     "name": "Botafogo",
     "totalPoints": 4,
     "totalGames": 3,
@@ -154,6 +142,18 @@ export const homeLeaderboard = [
     "goalsOwn": 2,
     "goalsBalance": -1,
     "efficiency": 16.67
+  },
+  {
+    "name": "Minas Brasília",
+    "totalPoints": 1,
+    "totalGames": 3,
+    "totalVictories": 0,
+    "totalDraws": 1,
+    "totalLosses": 2,
+    "goalsFavor": 3,
+    "goalsOwn": 6,
+    "goalsBalance": -3,
+    "efficiency": 11.11
   },
   {
     "name": "Avaí/Kindermann",
