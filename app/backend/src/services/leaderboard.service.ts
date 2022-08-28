@@ -7,7 +7,7 @@ import { Path } from '../interfaces/Path.type';
 import { MatchType, GoalType } from '../interfaces/Enums';
 
 export default class LeaderboardService {
-  getFilteredLeaderboard = async (path: Path): Promise<ITeamStats[]> => {
+  getTeamMatches = async (path: Path): Promise<ITeamMatches[]> => {
     const teamsMatches = await Team.findAll({
       attributes: { exclude: ['id'] },
       include: {
@@ -18,20 +18,24 @@ export default class LeaderboardService {
       },
     });
 
-    const teamsMatchesJSON = teamsMatches
-      .map((teamMatches) => teamMatches.toJSON()) as unknown as ITeamMatches[];
-
-    const result = teamsMatchesJSON
-      .map((teamMatches) => this._generateTeamStats(teamMatches, path))
-      .sort(this._orderByTieBreakers);
-
-    return result;
+    return teamsMatches as unknown as ITeamMatches[];
   };
 
-  getFullLeaderboard = async (): Promise<ITeamStats[]> => {
-    const homeTeamsMatches = await this.getFilteredLeaderboard('/home');
-    const awayTeamsMatches = await this.getFilteredLeaderboard('/away');
+  getFilteredLeaderboard = async (
+    teamsMatches: ITeamMatches[],
+    path: Path,
+  ): Promise<ITeamStats[]> => {
+    const teamsStats = teamsMatches
+      .map((teamMatches: ITeamMatches) => this._generateTeamStats(teamMatches, path))
+      .sort(this._orderByTieBreakers);
 
+    return teamsStats;
+  };
+
+  getFullLeaderboard = async (
+    homeTeamsMatches: ITeamStats[],
+    awayTeamsMatches: ITeamStats[],
+  ): Promise<ITeamStats[]> => {
     const teamsFullStats = homeTeamsMatches.map((homeTeamMatches) => {
       const team = awayTeamsMatches
         .find((awayTeamMatches) => homeTeamMatches.name === awayTeamMatches.name);

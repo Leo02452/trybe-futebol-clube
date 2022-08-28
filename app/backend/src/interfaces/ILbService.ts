@@ -1,6 +1,12 @@
+import ITeamMatches from './ITeamMatches';
 import { ITeamStats } from './ITeamStats';
+import { Path } from './Path.type';
 
 export default interface ILbService {
-  getFilteredLeaderboard(teste: string): Promise<ITeamStats[]>;
-  getFullLeaderboard(): Promise<ITeamStats[]>;
+  getTeamMatches(path: Path): Promise<ITeamMatches[]>
+  getFilteredLeaderboard(teamsMatches: ITeamMatches[], path: Path): Promise<ITeamStats[]>;
+  getFullLeaderboard(
+    homeTeamsMatches: ITeamStats[],
+    awayTeamsMatches: ITeamStats[],
+  ): Promise<ITeamStats[]>;
 }
