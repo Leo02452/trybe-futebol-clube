@@ -1,20 +1,10 @@
 import Team from '../database/models/team';
-import Match from '../database/models/matches';
-import { ITeamGoals, ITeamResults, ITeamStats } from '../interfaces/ITeamStats';
-import IMatchScore from '../interfaces/IMatchScore';
 import ITeamMatches from '../interfaces/ITeamMatches';
-
-type Path = '/home' | '/away';
-
-enum MatchType {
-  '/home' = 'homeMatches',
-  '/away' = 'awayMatches',
-}
-
-enum GoalType {
-  '/home' = 'homeTeamGoals',
-  '/away' = 'awayTeamGoals',
-}
+import { ITeamGoals, ITeamResults, ITeamStats } from '../interfaces/ITeamStats';
+import Match from '../database/models/matches';
+import IMatchScore from '../interfaces/IMatchScore';
+import { Path } from '../interfaces/Path.type';
+import { MatchType, GoalType } from '../interfaces/Enums';
 
 export default class LeaderboardService {
   getFilteredLeaderboard = async (path: Path): Promise<ITeamStats[]> => {
