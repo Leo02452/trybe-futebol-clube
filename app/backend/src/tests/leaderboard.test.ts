@@ -9,6 +9,9 @@ import { awayTeamsMatches } from './mocks/awayTeamsMatches';
 import { awayLeaderboard } from './mocks/awayLeaderboard';
 import { homeTeamsMatches } from './mocks/homeTeamsMatches';
 import { homeLeaderboard } from './mocks/homeLeaderboard';
+import { Leaderboard } from './mocks/fullLeaderboard';
+
+
 import Team from '../database/models/team';
 
 chai.use(chaiHttp);
@@ -61,6 +64,22 @@ describe('Leaderboard', () => {
         .get('/leaderboard/home');
 
       expect(response.body).to.be.deep.equal(homeLeaderboard);
+    });
+  });
+
+  describe('Get full leaderboard', () => {
+    it('should return a 200 status code', async () => {
+      const response = await chai.request(app)
+        .get('/leaderboard');
+
+      expect(response.status).to.be.eq(200);
+    });
+
+    it('should return a full leaderboard', async () => {
+      const response = await chai.request(app)
+        .get('/leaderboard');
+
+      expect(response.body).to.be.deep.equal(Leaderboard);
     });
   });
 });
