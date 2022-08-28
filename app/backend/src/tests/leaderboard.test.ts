@@ -7,6 +7,8 @@ import { app } from '../app';
 
 import { awayTeamsMatches } from './mocks/awayTeamsMatches';
 import { awayLeaderboard } from './mocks/awayLeaderboard';
+import { homeTeamsMatches } from './mocks/homeTeamsMatches';
+import { homeLeaderboard } from './mocks/homeLeaderboard';
 import Team from '../database/models/team';
 
 chai.use(chaiHttp);
@@ -35,6 +37,30 @@ describe('Leaderboard', () => {
         .get('/leaderboard/away');
 
       expect(response.body).to.be.deep.equal(awayLeaderboard);
+    });
+  });
+
+  describe('Get home leaderboard', () => {
+    beforeEach(() => {
+      sinon.stub(Team, "findAll").resolves(homeTeamsMatches as unknown as Team[]);
+    })
+  
+    afterEach(() => {
+      sinon.restore();
+    })
+
+    it('should return a 200 status code', async () => {
+      const response = await chai.request(app)
+        .get('/leaderboard/home');
+
+      expect(response.status).to.be.eq(200);
+    });
+
+    it('should return a home leaderboard', async () => {
+      const response = await chai.request(app)
+        .get('/leaderboard/home');
+
+      expect(response.body).to.be.deep.equal(homeLeaderboard);
     });
   });
 });
