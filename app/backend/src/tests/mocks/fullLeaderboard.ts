@@ -1,17 +1,5 @@
 export const Leaderboard = [
   {
-    "name": "Corinthians",
-    "totalPoints": 15,
-    "totalGames": 6,
-    "totalVictories": 5,
-    "totalDraws": 0,
-    "totalLosses": 1,
-    "goalsFavor": 14,
-    "goalsOwn": 4,
-    "goalsBalance": 10,
-    "efficiency": 83.33
-  },
-  {
     "name": "Palmeiras",
     "totalPoints": 13,
     "totalGames": 5,
@@ -22,6 +10,18 @@ export const Leaderboard = [
     "goalsOwn": 5,
     "goalsBalance": 12,
     "efficiency": 86.67
+  },
+  {
+    "name": "Corinthians",
+    "totalPoints": 12,
+    "totalGames": 5,
+    "totalVictories": 4,
+    "totalDraws": 0,
+    "totalLosses": 1,
+    "goalsFavor": 12,
+    "goalsOwn": 3,
+    "goalsBalance": 9,
+    "efficiency": 80
   },
   {
     "name": "Santos",
@@ -48,6 +48,18 @@ export const Leaderboard = [
     "efficiency": 66.67
   },
   {
+    "name": "Internacional",
+    "totalPoints": 10,
+    "totalGames": 5,
+    "totalVictories": 3,
+    "totalDraws": 1,
+    "totalLosses": 1,
+    "goalsFavor": 7,
+    "goalsOwn": 6,
+    "goalsBalance": 1,
+    "efficiency": 66.67
+  },
+  {
     "name": "Real Brasília",
     "totalPoints": 10,
     "totalGames": 5,
@@ -58,18 +70,6 @@ export const Leaderboard = [
     "goalsOwn": 4,
     "goalsBalance": 1,
     "efficiency": 66.67
-  },
-  {
-    "name": "Internacional",
-    "totalPoints": 10,
-    "totalGames": 6,
-    "totalVictories": 3,
-    "totalDraws": 1,
-    "totalLosses": 2,
-    "goalsFavor": 8,
-    "goalsOwn": 8,
-    "goalsBalance": 0,
-    "efficiency": 55.56
   },
   {
     "name": "São Paulo",
