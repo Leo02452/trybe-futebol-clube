@@ -53,11 +53,43 @@ describe('Matches', () => {
       expect(response.status).to.be.eq(200);
     });
 
-    it('should return a matches list', async () => {
+    it('should finish a match and return a confirmation message', async () => {
       const response = await chai.request(app)
         .patch('/matches/1/finish');
 
       expect(response.body).to.be.deep.equal({ message: 'finished' });
+    });
+  });
+
+  describe('Update', () => {
+    beforeEach(() => {
+      sinon.stub(Match, "findOne").resolves(matches[0] as unknown as Match);
+    })
+  
+    afterEach(() => {
+      sinon.restore();
+    })
+
+    it('should return a 200 status code', async () => {
+      const response = await chai.request(app)
+        .patch('/matches/1')
+        .send({
+          homeTeamGoals: 3,
+          awayTeamGoals: 1,
+        });
+
+      expect(response.status).to.be.eq(200);
+    });
+
+    it('should update a match and return a confirmation message', async () => {
+      const response = await chai.request(app)
+        .patch('/matches/1')
+        .send({
+          homeTeamGoals: 3,
+          awayTeamGoals: 1,
+        });
+
+      expect(response.body).to.be.deep.equal({ message: 'match score updated!' });
     });
   });
 });
