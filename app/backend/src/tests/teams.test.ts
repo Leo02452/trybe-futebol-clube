@@ -36,4 +36,28 @@ describe('Teams', () => {
       expect(response.body).to.be.deep.equal(teams);
     });
   });
+
+  describe('GetById', () => {
+    beforeEach(() => {
+      sinon.stub(Team, "findByPk").resolves(teams[1] as Team);
+    })
+  
+    afterEach(() => {
+      sinon.restore();
+    })
+
+    it('should return a 200 status code', async () => {
+      const response = await chai.request(app)
+        .get('/teams/2');
+
+      expect(response.status).to.be.eq(200);
+    });
+
+    it('should return a team list', async () => {
+      const response = await chai.request(app)
+        .get('/teams/2');
+
+      expect(response.body).to.be.deep.equal(teams[1]);
+    });
+  });
 });
