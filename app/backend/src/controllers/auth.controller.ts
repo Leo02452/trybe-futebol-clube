@@ -1,18 +1,16 @@
 import { Request, Response } from 'express';
-import IUserLogin from '../interfaces/IUserLogin';
+import ILoginDTO from '../services/Login/ILoginDTO';
 import IAuthService from '../interfaces/IAuthService';
+import LoginService from '../services/Login/LoginService';
 
 export default class AuthController {
   constructor(
     private authService: IAuthService,
+    private _loginService: LoginService,
   ) { }
 
   async login(req: Request, res: Response): Promise<void> {
-    const payload: IUserLogin = await this.authService.validateBody(req.body);
-
-    const user = await this.authService.validateUserData(payload);
-
-    const token = await this.authService.login(user);
+    const token = await this._loginService.execute(req.body as ILoginDTO);
 
     res.status(200).json({ token });
   }

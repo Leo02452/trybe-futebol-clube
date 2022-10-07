@@ -7,10 +7,17 @@ import JwtService from '../services/jwt.service';
 import MatchesService from '../services/matches.service';
 import TeamsService from '../services/teams.service';
 import LeaderboardService from '../services/leaderboard.service';
+import LoginService from '../services/Login/LoginService';
+import UserRepository from '../repositories/UsersRepository';
+import User from '../database/models/user';
+import { bcryptPasswordProvider, jwtTokenProvider } from '../providers';
+
+const usersRepository = new UserRepository(User);
 
 const jwtService = new JwtService();
 const authService = new AuthService(jwtService);
-const authController = new AuthController(authService);
+const loginService = new LoginService(usersRepository, bcryptPasswordProvider, jwtTokenProvider);
+const authController = new AuthController(authService, loginService);
 
 const teamsService = new TeamsService();
 const teamsController = new TeamsController(teamsService);
