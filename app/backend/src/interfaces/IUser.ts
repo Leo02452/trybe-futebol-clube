@@ -1,3 +1,4 @@
+import { JwtPayload } from 'jsonwebtoken';
 import IUserLogin from './IUserLogin';
 
 export default interface IUser extends IUserLogin {
@@ -7,3 +8,5 @@ export default interface IUser extends IUserLogin {
 }
 
 export type IUserWithoutPassword = Omit<IUser, 'password'>;
+
+export interface IUserTokenPayload extends JwtPayload, IUserWithoutPassword { }
