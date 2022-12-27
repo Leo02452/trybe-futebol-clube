@@ -18,7 +18,7 @@ Esse projeto foi desenvolvido durante o módulo de backend na [Trybe](https://ww
 
 Além disso, o desafio foi criar essa API com POO e com os princípios de SOLID.
 
-O projeto original foi entregue, mas entendo que há espaço para melhorias, coloquei na seção de próximos passos tarefas extras que quero implementar.
+O projeto original foi entregue, mas entendendo que há espaço para melhorias, coloquei na seção de próximos passos tarefas extras que quero implementar.
 
 
 ## :construction: Próximos passos
